@@ -4,6 +4,12 @@ End-to-end UI test suite for [Twitch.tv](https://www.twitch.tv) built with **Sel
 
 ---
 
+## Demo
+
+![Test running locally](demo.gif)
+
+---
+
 ## What the test does
 
 1. Opens `https://www.twitch.tv`
@@ -20,7 +26,7 @@ End-to-end UI test suite for [Twitch.tv](https://www.twitch.tv) built with **Sel
 
 ## Project structure
 
-```
+```text
 twitch-ui-automation/
 ├── src/
 │   ├── main/java/com/automation/twitch/
@@ -52,11 +58,11 @@ twitch-ui-automation/
 
 ## Prerequisites
 
-| Requirement | Version |
-|-------------|---------|
-| Java JDK    | 17+     |
-| Maven       | 3.8+    |
-| Google Chrome | Latest |
+| Requirement   | Version |
+|---------------|---------|
+| Java JDK      | 17+     |
+| Maven         | 3.8+    |
+| Google Chrome | Latest  |
 
 > ChromeDriver is managed automatically by **WebDriverManager** — no manual driver download needed.
 
@@ -82,17 +88,20 @@ modal.check.timeout=4       # seconds — quick popup presence check
 
 ## Running the tests
 
-**Maven (recommended)**
+### Maven (recommended)
+
 ```bash
 mvn clean test
 ```
 
-**Run a specific test class**
+### Run a specific test class
+
 ```bash
 mvn clean test -Dtest=TwitchSearchTest
 ```
 
-**Via TestNG XML directly**
+### Via TestNG XML directly
+
 ```bash
 mvn surefire:test
 ```
@@ -103,14 +112,14 @@ Screenshots are saved to the `screenshots/` folder in the project root.
 
 ## Dependencies
 
-| Library | Version | Purpose |
-|---------|---------|---------|
-| selenium-java | 4.18.1 | Browser automation |
-| webdrivermanager | 5.7.0 | Auto ChromeDriver management |
-| testng | 7.9.0 | Test framework |
-| assertj-core | 3.25.3 | Fluent assertions |
-| logback-classic | 1.5.3 | Logging |
-| commons-io | 2.15.1 | Screenshot file operations |
+| Library           | Version | Purpose                       |
+|-------------------|---------|-------------------------------|
+| selenium-java     | 4.18.1  | Browser automation            |
+| webdrivermanager  | 5.7.0   | Auto ChromeDriver management  |
+| testng            | 7.9.0   | Test framework                |
+| assertj-core      | 3.25.3  | Fluent assertions             |
+| logback-classic   | 1.5.3   | Logging                       |
+| commons-io        | 2.15.1  | Screenshot file operations    |
 
 ---
 
