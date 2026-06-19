@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class BasePage {
 
@@ -18,11 +19,12 @@ public abstract class BasePage {
 
     private static final Logger log = LoggerFactory.getLogger(BasePage.class);
     private static final long EXPLICIT_WAIT_SECONDS = ConfigManager.getLong("explicit.wait");
-    private static final long POLL_INTERVAL_MS = 500;
+    private static final long SCROLL_WAIT_MS        = ConfigManager.getLong("scroll.wait.ms");
+    private static final long POLL_INTERVAL_MS      = 500;
 
     protected BasePage(WebDriver driver) {
-        this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(EXPLICIT_WAIT_SECONDS));
+        this.driver = Objects.requireNonNull(driver, "WebDriver must not be null");
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(EXPLICIT_WAIT_SECONDS));
     }
 
     protected WebElement waitForVisible(By locator) {
@@ -49,16 +51,33 @@ public abstract class BasePage {
                 });
     }
 
-    protected void type(By locator, String text) {
+    // Returns BasePage for consistent fluent chaining across all subclasses
+    protected BasePage type(By locator, String text) {
         log.debug("Typing '{}' into: {}", text, locator);
         WebElement element = waitForVisible(locator);
         element.clear();
         element.sendKeys(text);
+        return this;
     }
 
     protected void scrollDown() {
+        Long scrollBefore = (Long) ((JavascriptExecutor) driver)
+                .executeScript("return window.pageYOffset");
         ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, window.innerHeight)");
-        sleepMillis(800);
+
+        // Verify the scroll actually moved the viewport (catches bottom-of-page edge case)
+        try {
+            new WebDriverWait(driver, Duration.ofSeconds(5))
+                    .pollingEvery(Duration.ofMillis(100))
+                    .until(d -> {
+                        Long after = (Long) ((JavascriptExecutor) d).executeScript("return window.pageYOffset");
+                        return !after.equals(scrollBefore);
+                    });
+        } catch (TimeoutException ignored) {
+            log.debug("Scroll position unchanged — possibly at page bottom");
+        }
+
+        sleepMillis(SCROLL_WAIT_MS); // allow lazy-loaded content to render after scroll
     }
 
     protected void scrollDown(int times) {

@@ -19,6 +19,8 @@
         <assertj.version>3.25.3</assertj.version>
         <logback.version>1.5.3</logback.version>
         <commons-io.version>2.15.1</commons-io.version>
+        <allure.version>2.25.0</allure.version>
+        <aspectjweaver.version>1.9.21</aspectjweaver.version>
     </properties>
 
     <dependencies>
@@ -29,7 +31,7 @@
             <version>${selenium.version}</version>
         </dependency>
 
-        <!-- WebDriverManager - auto-manages ChromeDriver binary -->
+        <!-- WebDriverManager - auto-manages browser driver binaries -->
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
@@ -63,6 +65,21 @@
             <artifactId>commons-io</artifactId>
             <version>${commons-io.version}</version>
         </dependency>
+
+        <!-- Allure TestNG - rich HTML test reports -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-testng</artifactId>
+            <version>${allure.version}</version>
+        </dependency>
+
+        <!-- AspectJ weaver - required for Allure @Step interception at runtime -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${aspectjweaver.version}</version>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -75,6 +92,23 @@
                     <suiteXmlFiles>
                         <suiteXmlFile>testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
+                    <!-- AspectJ agent enables Allure @Step interception at runtime -->
+                    <argLine>
+                        -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectjweaver.version}/aspectjweaver-${aspectjweaver.version}.jar
+                    </argLine>
+                    <systemPropertyVariables>
+                        <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+
+            <!-- Allure report: run `mvn allure:serve` after `mvn test` -->
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>2.12.0</version>
+                <configuration>
+                    <reportVersion>${allure.version}</reportVersion>
                 </configuration>
             </plugin>
         </plugins>

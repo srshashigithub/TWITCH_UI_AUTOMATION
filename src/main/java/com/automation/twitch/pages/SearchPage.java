@@ -5,6 +5,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +18,8 @@ public class SearchPage extends BasePage {
             "input[data-a-target='tw-input'], input[type='search'], input[placeholder*='Search']"
     );
 
-    // First anchor on the page whose href is a plain channel path (e.g. /ninja),
-    // excluding directories, search, and static pages
+    // First anchor whose href is a plain channel path (e.g. /ninja),
+    // excluding directories, search pages, and static content
     private static final By FIRST_STREAMER_LINK = By.xpath(
             "(//a[starts-with(@href,'/') and string-length(@href) > 1" +
             " and not(contains(@href,'/directory'))" +
@@ -62,10 +63,13 @@ public class SearchPage extends BasePage {
     public StreamerPage selectFirstStreamer() {
         log.info("Waiting for a streamer link to be clickable...");
         WebElement streamer = waitForClickable(FIRST_STREAMER_LINK);
+        String currentUrl = driver.getCurrentUrl();
         if (log.isInfoEnabled()) {
             log.info("Clicking streamer: {}", streamer.getAttribute("href"));
         }
         streamer.click();
+        // Confirm navigation happened before returning the StreamerPage object
+        wait.until(ExpectedConditions.not(ExpectedConditions.urlToBe(currentUrl)));
         return new StreamerPage(driver);
     }
 }

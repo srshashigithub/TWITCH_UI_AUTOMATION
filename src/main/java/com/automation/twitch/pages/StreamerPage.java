@@ -1,5 +1,6 @@
 package com.automation.twitch.pages;
 
+import com.automation.twitch.config.ConfigManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -10,9 +11,10 @@ public class StreamerPage extends BasePage {
 
     private static final Logger log = LoggerFactory.getLogger(StreamerPage.class);
 
-    private static final By VIDEO_PLAYER       = By.cssSelector(".video-player, [data-a-target='video-player'], .persistent-player");
-    private static final By CHANNEL_HEADER     = By.cssSelector("[data-a-target='stream-title'], .channel-header-username");
-    private static final By LOADING_SPINNER    = By.cssSelector(".tw-loading-spinner, [data-a-target='loading-spinner']");
+    private static final long STABILIZATION_MS = ConfigManager.getLong("streamer.stabilization.ms");
+
+    private static final By VIDEO_PLAYER    = By.cssSelector(".video-player, [data-a-target='video-player'], .persistent-player");
+    private static final By LOADING_SPINNER = By.cssSelector(".tw-loading-spinner, [data-a-target='loading-spinner']");
 
     public StreamerPage(WebDriver driver) {
         super(driver);
@@ -31,8 +33,8 @@ public class StreamerPage extends BasePage {
         // 3. Any loading spinners must disappear
         wait.until(ExpectedConditions.invisibilityOfElementLocated(LOADING_SPINNER));
 
-        // 4. Brief stabilisation pause — React components may still be mounting
-        sleepMillis(1500);
+        // 4. Configurable stabilisation pause — React components may still be mounting
+        sleepMillis(STABILIZATION_MS);
 
         log.info("Streamer page ready. Current URL: {}", driver.getCurrentUrl());
         return this;
